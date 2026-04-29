@@ -31,6 +31,7 @@ export class GovernanceStack extends cdk.Stack {
       prefix,
       rawBucket: storage.rawBucket,
       tablePrefix,
+      tableName,
     });
 
     const lf = new LakeFormation(this, 'LakeFormation', {
@@ -49,6 +50,7 @@ export class GovernanceStack extends cdk.Stack {
       prefix,
       databaseName: catalog.databaseName,
       tableName,
+      tableDependency: catalog.table,
     });
 
     if (props.enableMacie) {

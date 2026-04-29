@@ -1,10 +1,12 @@
 import * as glue from 'aws-cdk-lib/aws-glue';
-import { Construct } from 'constructs';
+import { Construct, IDependable } from 'constructs';
 
 export interface GlueDataQualityProps {
   readonly prefix: string;
   readonly databaseName: string;
   readonly tableName: string;
+  /** Pre-declared Glue table the ruleset binds to. Required: Glue rejects rulesets whose target does not yet exist. */
+  readonly tableDependency: IDependable;
 }
 
 export class GlueDataQuality extends Construct {
@@ -13,13 +15,9 @@ export class GlueDataQuality extends Construct {
   constructor(scope: Construct, id: string, props: GlueDataQualityProps) {
     super(scope, id);
 
-    // Ruleset is created standalone — the target table (`tableName` in
-     // `databaseName`) is produced by the crawler post-deploy, so binding
-     // `targetTable` here fails CFN validation with EntityNotFoundException.
-     // Operator picks the table when running the ruleset from the Glue console.
     this.ruleset = new glue.CfnDataQualityRuleset(this, 'Ruleset', {
       name: `${props.prefix}-${props.tableName}-ruleset`,
-      description: `PoC DQ ruleset (target: ${props.databaseName}.${props.tableName})`,
+      description: 'PoC DQ ruleset',
       ruleset: [
         'Rules = [',
         '  RowCount > 0,',
@@ -28,6 +26,11 @@ export class GlueDataQuality extends Construct {
         '  ColumnExists "email"',
         ']',
       ].join('\n'),
+      targetTable: {
+        databaseName: props.databaseName,
+        tableName: props.tableName,
+      },
     });
+    this.ruleset.node.addDependency(props.tableDependency);
   }
 }

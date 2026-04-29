@@ -8,11 +8,13 @@ export interface GlueCatalogProps {
   readonly prefix: string;
   readonly rawBucket: s3.IBucket;
   readonly tablePrefix: string;
+  readonly tableName: string;
 }
 
 export class GlueCatalog extends Construct {
   public readonly databaseName: string;
   public readonly database: glue.CfnDatabase;
+  public readonly table: glue.CfnTable;
   public readonly crawler: glue.CfnCrawler;
   public readonly crawlerRole: iam.Role;
 
@@ -29,6 +31,43 @@ export class GlueCatalog extends Construct {
         description: `PoC Gobernanza - ${props.prefix}`,
       },
     });
+
+    // Table is pre-declared so DQ ruleset (and other table-bound resources)
+     // can attach to it at deploy time. The crawler is configured with
+     // UPDATE_IN_DATABASE, so it refines schema/partitions on subsequent runs
+     // without recreating the table.
+    this.table = new glue.CfnTable(this, 'Table', {
+      catalogId: stack.account,
+      databaseName: this.databaseName,
+      tableInput: {
+        name: props.tableName,
+        tableType: 'EXTERNAL_TABLE',
+        parameters: {
+          classification: 'csv',
+          'skip.header.line.count': '1',
+          typeOfData: 'file',
+        },
+        storageDescriptor: {
+          location: `s3://${props.rawBucket.bucketName}/${props.tablePrefix}/`,
+          inputFormat: 'org.apache.hadoop.mapred.TextInputFormat',
+          outputFormat:
+            'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat',
+          serdeInfo: {
+            serializationLibrary:
+              'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe',
+            parameters: { 'field.delim': ',' },
+          },
+          columns: [
+            { name: 'id', type: 'bigint' },
+            { name: 'nombre', type: 'string' },
+            { name: 'email', type: 'string' },
+            { name: 'telefono', type: 'string' },
+            { name: 'pais', type: 'string' },
+          ],
+        },
+      },
+    });
+    this.table.addDependency(this.database);
 
     this.crawlerRole = new iam.Role(this, 'CrawlerRole', {
       roleName: `${props.prefix}-glue-crawler-role`,

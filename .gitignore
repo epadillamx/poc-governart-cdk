@@ -12,3 +12,6 @@ cdk.out/
 # CDK
 .cdk.staging/
 cdk.context.json
+
+# Recovery/ops scratch files (account-specific ARNs)
+lf-settings.json
