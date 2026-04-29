@@ -1,0 +1,31 @@
+{
+  "name": "poc-gobernanza",
+  "version": "0.1.0",
+  "description": "PoC de gobernanza de datos en AWS (CDK Node.js): S3 + Glue Catalog + Glue DQ + Lake Formation + Macie + DataZone + Lineage",
+  "bin": {
+    "poc-gobernanza": "bin/app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "bootstrap": "ts-node scripts/bootstrap.ts",
+    "deploy": "cdk deploy --require-approval never",
+    "destroy": "cdk destroy",
+    "emit-lineage": "ts-node scripts/emit-lineage.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "aws-cdk": "^2.160.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.4.5"
+  },
+  "dependencies": {
+    "@aws-sdk/client-datazone": "^3.600.0",
+    "aws-cdk-lib": "^2.160.0",
+    "constructs": "^10.3.0",
+    "dotenv": "^16.4.5",
+    "source-map-support": "^0.5.21"
+  }
+}

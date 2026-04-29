@@ -1,0 +1,14 @@
+.env
+.env.local
+*.env
+
+node_modules/
+cdk.out/
+*.js
+!jest.config.js
+*.d.ts
+.DS_Store
+
+# CDK
+.cdk.staging/
+cdk.context.json
