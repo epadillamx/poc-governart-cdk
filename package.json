@@ -9,10 +9,10 @@
     "build": "tsc",
     "watch": "tsc -w",
     "cdk": "cdk",
-    "synth": "cdk synth",
+    "synth": "ts-node scripts/synth.ts",
     "bootstrap": "ts-node scripts/bootstrap.ts",
-    "deploy": "cdk deploy --require-approval never",
-    "destroy": "cdk destroy",
+    "deploy": "ts-node scripts/deploy.ts",
+    "destroy": "ts-node scripts/destroy.ts",
     "emit-lineage": "ts-node scripts/emit-lineage.ts"
   },
   "devDependencies": {
